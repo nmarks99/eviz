@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <queue>
 #include <stdexcept>
+#include <unordered_map>
 
 constexpr float AXES_THICKNESS = 0.0075f;
 
@@ -72,18 +73,28 @@ RobotModel::RobotModel(const std::filesystem::path& urdf_path)
         }
     }
 
+    q_.assign(njoints, 0.0f);
     link_tf_.assign(robot_.links.size(), MatrixIdentity());
-    update({});
+    update();
 }
 
-void RobotModel::update(const std::unordered_map<std::string, float>& q) {
+int RobotModel::joint_index(const std::string& name) const {
+    for (int j = 0; j < static_cast<int>(robot_.joints.size()); j++) {
+        if (robot_.joints[j].name == name) {
+            if (robot_.joints[j].type == urdf::JointType::Fixed) {
+                throw std::runtime_error("Joint '" + name + "' is fixed");
+            }
+            return j;
+        }
+    }
+    throw std::runtime_error("No joint named '" + name + "' in robot '" + robot_.name + "'");
+}
+
+void RobotModel::update() {
     link_tf_[root_link_] = root_tf_;
     for (int j : joint_order_) {
         const urdf::Joint& joint = robot_.joints[j];
-        float value = 0.0f;
-        if (auto it = q.find(joint.name); it != q.end()) {
-            value = it->second;
-        }
+        const float value = q_[j];
 
         Matrix motion = MatrixIdentity();
         switch (joint.type) {

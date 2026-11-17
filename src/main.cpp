@@ -1,7 +1,7 @@
+#include "config.hpp"
 #include "raylib.h"
-#include "raymath.h"
 #include "rl_utils.hpp"
-#include "robot.hpp"
+#include "scene.hpp"
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -17,12 +17,10 @@ inline std::filesystem::path get_resource_dir() {
 }
 
 int main(int argc, char* argv[]) {
-    const std::filesystem::path urdf_path =
-        argc > 1 ? std::filesystem::path(argv[1]) : get_resource_dir() / "ur5e" / "ur5e.urdf";
+    const std::filesystem::path scene_path =
+        argc > 1 ? std::filesystem::path(argv[1]) : get_resource_dir() / "ur5e" / "ur5e.toml";
 
-    pace::Context ctx("ca");
-    std::vector<double> q(6);
-    ctx.connect("mpleUR:Receive:Joints").bind(q);
+    pace::Context ctx("pva");
 
     // initialize the window
     RLWindow window(1120, 760, "eviz");
@@ -30,32 +28,19 @@ int main(int argc, char* argv[]) {
     // Set up 3D camera
     RLCamera3D cam;
 
-    std::unique_ptr<RobotModel> robot_ptr;
+    std::unique_ptr<Scene> scene;
     try {
-        robot_ptr = std::make_unique<RobotModel>(urdf_path);
+        scene = std::make_unique<Scene>(load_scene_config(scene_path), ctx);
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
-    RobotModel& robot = *robot_ptr;
-    robot.set_root_transform(MatrixRotateX(-PI / 2.0f));
 
     while (!WindowShouldClose()) {
         // UPDATE ///////////////////////////////////////////////
         cam.update();
         if (ctx.sync()) {
-            for (auto& v : q) {
-                v *= M_PI/180.0;
-            }
-            std::cout << "\n";
-            robot.update({
-                {"shoulder_pan_joint", q[0]},
-                {"shoulder_lift_joint", q[1]},
-                {"elbow_joint", q[2]},
-                {"wrist_1_joint", q[3]},
-                {"wrist_2_joint", q[4]},
-                {"wrist_3_joint", q[5]},
-            });
+            scene->update();
         }
         // UPDATE ///////////////////////////////////////////////
 
@@ -66,7 +51,7 @@ int main(int argc, char* argv[]) {
         // 3D ---------------------------------------------------
         BeginMode3D(cam.camera);
         DrawGrid(10, 0.2f);
-        robot.draw();
+        scene->draw();
         EndMode3D();
         // 3D ---------------------------------------------------
 

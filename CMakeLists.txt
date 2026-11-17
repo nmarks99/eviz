@@ -50,6 +50,15 @@ FetchContent_Declare(tinyxml2
 )
 FetchContent_MakeAvailable(tinyxml2)
 
+# Fetch toml++
+message(STATUS "Cloning toml++ using FetchContent.")
+FetchContent_Declare(tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG        v3.4.0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
 # Fetch pace
 message(STATUS "Cloning pace using FetchContent.")
 FetchContent_Declare(pace
@@ -133,6 +142,8 @@ add_executable(eviz
     src/rl_utils.cpp
     src/urdf.cpp
     src/robot.cpp
+    src/config.cpp
+    src/scene.cpp
     # src/ur.cpp
     # src/ui.cpp
     # src/comm.cpp
@@ -151,6 +162,7 @@ target_include_directories(eviz SYSTEM
 target_link_libraries(eviz
     PRIVATE raylib
     PRIVATE tinyxml2::tinyxml2
+    PRIVATE tomlplusplus::tomlplusplus
     PRIVATE pace::pace
     PRIVATE ${EPICS_ca}
     PRIVATE ${EPICS_Com}
