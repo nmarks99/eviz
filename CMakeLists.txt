@@ -141,17 +141,20 @@ add_executable(eviz
 target_include_directories(eviz
     PRIVATE src
     # PRIVATE external
-    # PRIVATE ${EPICS_BASE_INCLUDES}
-    # PRIVATE ${PVXS_INCLUDES}
+)
+
+target_include_directories(eviz SYSTEM
+    PRIVATE ${EPICS_BASE_INCLUDES}
+    PRIVATE ${PVXS_INCLUDES}
 )
 
 target_link_libraries(eviz
     PRIVATE raylib
     PRIVATE tinyxml2::tinyxml2
-    # PRIVATE pace::pace
-    # PRIVATE ${EPICS_ca}
-    # PRIVATE ${EPICS_Com}
-    # PRIVATE ${PVXS_LIBRARY}
+    PRIVATE pace::pace
+    PRIVATE ${EPICS_ca}
+    PRIVATE ${EPICS_Com}
+    PRIVATE ${PVXS_LIBRARY}
 )
 #####################################################
 
