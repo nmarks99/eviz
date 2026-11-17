@@ -40,6 +40,16 @@ else()
     endif()
 endif()
 
+# Fetch tinyxml2
+message(STATUS "Cloning tinyxml2 using FetchContent.")
+set(tinyxml2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(tinyxml2
+    GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
+    GIT_TAG        11.0.0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(tinyxml2)
+
 # Fetch pace
 message(STATUS "Cloning pace using FetchContent.")
 FetchContent_Declare(pace
@@ -114,13 +124,15 @@ set(PVXS_INCLUDES "${PVXS}/include")
 # ------------------------------------------------------------------------------
 
 # Define a preprocessor macro for the resources directory
-# add_compile_definitions(URVIEWER_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
-add_compile_definitions(URVIEWER_RESOURCE_DIR="${CMAKE_INSTALL_PREFIX}/share/eviz/resources")
+# add_compile_definitions(EVIZ_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
+add_compile_definitions(EVIZ_RESOURCE_DIR="${CMAKE_INSTALL_PREFIX}/share/eviz/resources")
 
 #####################################################
 add_executable(eviz
     src/main.cpp
     src/rl_utils.cpp
+    src/urdf.cpp
+    src/robot.cpp
     # src/ur.cpp
     # src/ui.cpp
     # src/comm.cpp
@@ -135,6 +147,7 @@ target_include_directories(eviz
 
 target_link_libraries(eviz
     PRIVATE raylib
+    PRIVATE tinyxml2::tinyxml2
     # PRIVATE pace::pace
     # PRIVATE ${EPICS_ca}
     # PRIVATE ${EPICS_Com}
