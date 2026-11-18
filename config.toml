@@ -1,7 +1,7 @@
 [[robot]]
 urdf = "resources/ur5e/ur5e.urdf"
 xyz = [0.0, 0.0, 0.0]
-rpy = [0.0, 0.0, 0.0]
+rpy = [0.0, 0.0, 3.14159265]
 
 [robot.joints]
 shoulder_pan_joint  = { pv = "pva://mpleUR:Receive:Joint1", units = "deg" }
@@ -12,4 +12,4 @@ wrist_2_joint       = { pv = "pva://mpleUR:Receive:Joint5", units = "deg" }
 wrist_3_joint       = { pv = "pva://mpleUR:Receive:Joint6", units = "deg" }
 
 [[markers]]
-pv = "eviz:test:Markers"
+pv = "mpleUR:mple:Markers"
