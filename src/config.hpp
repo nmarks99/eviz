@@ -18,8 +18,13 @@ struct RobotConfig {
     std::vector<JointBinding> joints;
 };
 
+struct MarkerConfig {
+    std::string pv;
+};
+
 struct SceneConfig {
     std::vector<RobotConfig> robots;
+    std::vector<MarkerConfig> markers;
 };
 
 SceneConfig load_scene_config(const std::filesystem::path& path);

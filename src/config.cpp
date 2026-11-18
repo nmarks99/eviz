@@ -118,6 +118,27 @@ RobotConfig parse_robot(const toml::table& tbl, const std::filesystem::path& bas
     return robot;
 }
 
+MarkerConfig parse_markers(const toml::table& tbl, const std::string& context) {
+    check_keys(tbl, {"pv"}, context);
+    auto pv = tbl["pv"].value<std::string>();
+    if (!pv || pv->empty()) {
+        fail(context, "missing 'pv'");
+    }
+    return MarkerConfig{*pv};
+}
+
+const toml::array* get_table_array(const toml::table& root, std::string_view key, const std::string& context) {
+    const toml::node* node = root.get(key);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    const toml::array* arr = node->as_array();
+    if (arr == nullptr || !arr->is_array_of_tables()) {
+        fail(context, "'" + std::string(key) + "' must be an array of tables ([[" + std::string(key) + "]])");
+    }
+    return arr;
+}
+
 } // namespace
 
 SceneConfig load_scene_config(const std::filesystem::path& path) {
@@ -130,26 +151,21 @@ SceneConfig load_scene_config(const std::filesystem::path& path) {
         throw std::runtime_error(ss.str());
     }
 
-    check_keys(root, {"robot"}, path.string());
+    check_keys(root, {"robot", "markers"}, path.string());
 
     SceneConfig scene;
-    const toml::node* robots_node = root.get("robot");
-    if (robots_node == nullptr) {
-        return scene;
-    }
-    const toml::array* robots = robots_node->as_array();
-    if (robots == nullptr) {
-        fail(path.string(), "'robot' must be an array of tables ([[robot]])");
-    }
-
     const std::filesystem::path base_dir = path.parent_path();
-    for (size_t i = 0; i < robots->size(); i++) {
-        const std::string context = path.string() + ": robot[" + std::to_string(i) + "]";
-        const toml::table* tbl = (*robots)[i].as_table();
-        if (tbl == nullptr) {
-            fail(context, "must be a table");
+    if (const toml::array* robots = get_table_array(root, "robot", path.string())) {
+        for (size_t i = 0; i < robots->size(); i++) {
+            const std::string context = path.string() + ": robot[" + std::to_string(i) + "]";
+            scene.robots.push_back(parse_robot(*(*robots)[i].as_table(), base_dir, context));
         }
-        scene.robots.push_back(parse_robot(*tbl, base_dir, context));
+    }
+    if (const toml::array* markers = get_table_array(root, "markers", path.string())) {
+        for (size_t i = 0; i < markers->size(); i++) {
+            const std::string context = path.string() + ": markers[" + std::to_string(i) + "]";
+            scene.markers.push_back(parse_markers(*(*markers)[i].as_table(), context));
+        }
     }
     return scene;
 }

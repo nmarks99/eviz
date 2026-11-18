@@ -144,6 +144,7 @@ add_executable(eviz
     src/robot.cpp
     src/config.cpp
     src/scene.cpp
+    src/markers.cpp
     # src/ur.cpp
     # src/ui.cpp
     # src/comm.cpp

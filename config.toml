@@ -10,3 +10,6 @@ elbow_joint         = { pv = "pva://mpleUR:Receive:Joint3", units = "deg" }
 wrist_1_joint       = { pv = "pva://mpleUR:Receive:Joint4", units = "deg" }
 wrist_2_joint       = { pv = "pva://mpleUR:Receive:Joint5", units = "deg" }
 wrist_3_joint       = { pv = "pva://mpleUR:Receive:Joint6", units = "deg" }
+
+[[markers]]
+pv = "eviz:test:Markers"

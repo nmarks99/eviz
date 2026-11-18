@@ -1,5 +1,6 @@
 #pragma once
 #include "config.hpp"
+#include "markers.hpp"
 #include "robot.hpp"
 #include <memory>
 #include <vector>
@@ -30,4 +31,5 @@ class Scene {
     };
 
     std::vector<SceneRobot> robots_;
+    std::vector<std::unique_ptr<MarkerDisplay>> markers_;
 };

@@ -5,6 +5,8 @@
 
 namespace {
 
+const Matrix WORLD_TF = MatrixRotateX(-PI / 2.0f);
+
 double units_to_scale(const std::string& units, urdf::JointType type, const std::string& joint) {
     const bool rotational = type == urdf::JointType::Revolute || type == urdf::JointType::Continuous;
     if (rotational && units == "rad") {
@@ -30,7 +32,7 @@ Scene::Scene(const SceneConfig& config, pace::Context& ctx) {
         SceneRobot robot;
         robot.model = std::make_unique<RobotModel>(rc.urdf);
         robot.model->set_root_transform(
-            MatrixMultiply(urdf::pose_to_matrix(rc.placement), MatrixRotateX(-PI / 2.0f)));
+            MatrixMultiply(urdf::pose_to_matrix(rc.placement), WORLD_TF));
 
         for (const JointBinding& b : rc.joints) {
             const int joint = robot.model->joint_index(b.joint);
@@ -45,6 +47,10 @@ Scene::Scene(const SceneConfig& config, pace::Context& ctx) {
         robot.model->update();
         robots_.push_back(std::move(robot));
     }
+
+    for (const MarkerConfig& mc : config.markers) {
+        markers_.push_back(std::make_unique<MarkerDisplay>(mc.pv, ctx, WORLD_TF));
+    }
 }
 
 void Scene::update() {
@@ -54,11 +60,17 @@ void Scene::update() {
         }
         robot.model->update();
     }
+    for (auto& m : markers_) {
+        m->update();
+    }
 }
 
 void Scene::draw() {
     for (SceneRobot& robot : robots_) {
         robot.model->draw();
+    }
+    for (const auto& m : markers_) {
+        m->draw();
     }
 }
 
