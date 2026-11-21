@@ -1,6 +1,6 @@
 #include "scene.hpp"
 #include "raymath.h"
-#include <pace.hpp>
+#include <pace/pace.hpp>
 #include <stdexcept>
 
 namespace {

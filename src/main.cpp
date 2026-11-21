@@ -7,7 +7,7 @@
 #include <iostream>
 #include <memory>
 
-#include <pace.hpp>
+#include <pace/pace.hpp>
 
 inline std::filesystem::path get_resource_dir() {
     if (const char* env = std::getenv("EVIZ_RESOURCE_DIR")) {
